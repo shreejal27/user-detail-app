@@ -1,5 +1,5 @@
 import 'dart:convert';
-import 'dart:ffi';
+import 'dart:developer';
 
 import 'package:flutter/material.dart';
 import 'package:http/http.dart' as http;
@@ -12,61 +12,29 @@ class HomePage extends StatefulWidget {
   State<HomePage> createState() => _HomePageState();
 }
 
-// Map<String, dynamic>? data;
-
-//   @override
-//   void initState() {
-//     super.initState();
-//     fetchPhotos();
-//   }
-
-//   fetchPhotos() async {
-//     try {
-//       var url = Uri.https(
-//         'jsonplaceholder.typicode.com',
-//         'photos',
-//       );
-//       final response = await http.get(url);
-//       // print(response.statusCode);
-//       // print(response.body.runtimeType);
-
-//       final decodedResponse = jsonDecode(response.body);
-
-//       // print("decoded Response: ${decodedResponse.runtimeType}");
-//       // decodedResponse[0] as Map<String, dynamic>;
-//        final photoList = decodedResponse.map((e) => Photo.fromJson(e)).toList();
-//        photos = photoList;
-//     } catch (e) {
-//       print('error $e');
-//     }
-//   }
-
 class _HomePageState extends State<HomePage> {
-  List<Note> _notes = List<Note>();
-
-  Future<List<Note>> fetchNotes() async {
-    var url = 'https://jsonplaceholder.typicode.com/users';
-    var response = await http.get(url);
-
-    var notes = List<Note>();
-
-    if (response.statusCode == 200) {
-      var notesJson = json.decode(response.body);
-      for (var noteJson in notesJson) {
-        notes.add(User.fromJson(noteJson));
-      }
-    }
-    return notes;
-  }
+  List<User> userList = [];
 
   @override
   void initState() {
-    fetchNotes().then((value) {
-      setState(() {
-        _notes.addAll(value);
-      });
-    });
     super.initState();
+    fetchUsers();
+  }
+
+  fetchUsers() async {
+    // try {
+    final response =
+        await http.get(Uri.parse('https://jsonplaceholder.typicode.com/users'));
+
+    final decodedResponse = jsonDecode(response.body) as List;
+    final users = decodedResponse.map((e) => User.fromJson(e)).toList();
+
+    setState(() {
+      userList = users;
+    });
+    // } catch (e) {
+    //   log(e.toString());
+    // }
   }
 
   @override
@@ -74,25 +42,53 @@ class _HomePageState extends State<HomePage> {
     return Scaffold(
         appBar: AppBar(),
         body: ListView.builder(
+          itemCount: userList.length,
           itemBuilder: (context, index) {
             return Card(
               child: Padding(
                 padding: const EdgeInsets.all(16.0),
                 child: Column(
                   crossAxisAlignment: CrossAxisAlignment.start,
-                  children: const <Widget>[
+                  children: <Widget>[
                     Text(
-                      _notes[index].title,
-                      style:
-                          TextStyle(fontSize: 22, fontWeight: FontWeight.bold),
+                      'id: ${userList[index].id}',
+                      style: const TextStyle(
+                          fontSize: 22, fontWeight: FontWeight.bold),
                     ),
-                    _notes[index].text,
+                    Text(
+                      'Name: ${userList[index].name}',
+                      style: const TextStyle(
+                          fontSize: 22, fontWeight: FontWeight.bold),
+                    ),
+                    Text(
+                      'Email: ${userList[index].email}',
+                      style: const TextStyle(
+                        fontSize: 22,
+                      ),
+                    ),
+                    Text(
+                      'Address: ${userList[index].address.city}',
+                      style: const TextStyle(
+                        fontSize: 22,
+                      ),
+                    ),
+                    Text(
+                      'Phone Number: ${userList[index].phone}',
+                      style: const TextStyle(
+                        fontSize: 22,
+                      ),
+                    ),
+                    Text(
+                      'Latitude: ${userList[index].address.geo.lat}',
+                      style: const TextStyle(
+                        fontSize: 22,
+                      ),
+                    ),
                   ],
                 ),
               ),
             );
           },
-          itemCount: _notes.length,
         ));
   }
 }

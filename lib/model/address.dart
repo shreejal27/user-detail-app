@@ -19,7 +19,7 @@ class Address {
     return Address(
       street: json[
           'street'], //inverted comma bhitra bhako chai uta api ko website sanga match hunu parcha
-      suit: json['suit'],
+      suit: json['suite'],
       city: json['city'],
       zipcode: json['zipcode'],
       geo: Geo.fromJson(json['geo']),
